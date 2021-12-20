@@ -1001,9 +1001,9 @@ def main():
         verbose=True)
 
     print('Checking ONNX model...')
-    onnx.checker.check_model(yolo_model_def)
+    #onnx.checker.check_model(yolo_model_def)
 
-    print('Saving ONNX file...')
+    print('Saving ONNX file...', output_file_path)
     onnx.save(yolo_model_def, output_file_path)
 
     print('Done.')

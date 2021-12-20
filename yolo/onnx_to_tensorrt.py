@@ -60,7 +60,7 @@ from yolo_to_onnx import DarkNetParser, get_h_and_w
 from plugins import add_yolo_plugins, add_concat
 
 
-MAX_BATCH_SIZE = 1
+MAX_BATCH_SIZE = 8
 
 
 def get_c(layer_configs):
