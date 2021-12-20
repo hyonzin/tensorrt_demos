@@ -60,7 +60,7 @@ from yolo_to_onnx import DarkNetParser, get_h_and_w
 from plugins import add_yolo_plugins, add_concat
 
 
-MAX_BATCH_SIZE = 8
+MAX_BATCH_SIZE = 4
 
 
 def get_c(layer_configs):
@@ -136,18 +136,13 @@ def build_engine(model_name, do_int8, dla_core, verbose=False):
             builder.max_batch_size = MAX_BATCH_SIZE
             builder.max_workspace_size = 1 << 30
             builder.fp16_mode = True  # alternative: builder.platform_has_fast_fp16
-            if do_int8:
-                from calibrator import YOLOEntropyCalibrator
-                builder.int8_mode = True
-                builder.int8_calibrator = YOLOEntropyCalibrator(
-                    'calib_images', (net_h, net_w), 'calib_%s.bin' % model_name)
             engine = builder.build_cuda_engine(network)
         else:  # new API: build_engine() with builder config
             builder.max_batch_size = MAX_BATCH_SIZE
             config = builder.create_builder_config()
             config.max_workspace_size = 1 << 30
             config.set_flag(trt.BuilderFlag.GPU_FALLBACK)
-            config.set_flag(trt.BuilderFlag.FP16)
+#            config.set_flag(trt.BuilderFlag.FP16)
             profile = builder.create_optimization_profile()
             profile.set_shape(
                 'input',                                # input tensor name
@@ -155,13 +150,6 @@ def build_engine(model_name, do_int8, dla_core, verbose=False):
                 (MAX_BATCH_SIZE, net_c, net_h, net_w),  # opt shape
                 (MAX_BATCH_SIZE, net_c, net_h, net_w))  # max shape
             config.add_optimization_profile(profile)
-            if do_int8:
-                from calibrator import YOLOEntropyCalibrator
-                config.set_flag(trt.BuilderFlag.INT8)
-                config.int8_calibrator = YOLOEntropyCalibrator(
-                    'calib_images', (net_h, net_w),
-                    'calib_%s.bin' % model_name)
-                config.set_calibration_profile(profile)
             if dla_core >= 0:
                 config.default_device_type = trt.DeviceType.DLA
                 config.DLA_core = dla_core

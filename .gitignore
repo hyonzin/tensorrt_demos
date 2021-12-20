@@ -41,3 +41,6 @@ modnet/venv*
 modnet/*.ckpt
 modnet/*.onnx
 modnet/*.engine
+
+.ipynb_checkpoints/
+.DS_store/
