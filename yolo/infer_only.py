@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 import os
-import ctypes
 import argparse
 
 import pycuda.driver as cuda
@@ -10,12 +9,8 @@ import tensorrt as trt
 import numpy as np
 
 import common
+import plugins
 from timer import DTimer
-
-try:
-    ctypes.cdll.LoadLibrary('libyolo_layer.so')
-except OSError as e:
-    raise SystemExit('ERROR: failed to load libyolo_layer.so.') from e
 
 logger = trt.Logger()
 runtime = trt.Runtime(logger)
