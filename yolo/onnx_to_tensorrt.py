@@ -60,7 +60,7 @@ from yolo_to_onnx import DarkNetParser, get_h_and_w
 from plugins import add_yolo_plugins, add_concat
 
 
-MAX_BATCH_SIZE = 4
+MAX_BATCH_SIZE = 0
 
 
 def get_c(layer_configs):
@@ -93,7 +93,7 @@ def set_net_batch(network, batch_size):
     return network
 
 
-def build_engine(model_name, do_int8, dla_core, verbose=False):
+def build_engine(model_name, do_int8, do_fp16, dla_core, verbose=False):
     """Build a TensorRT engine from ONNX using the older API."""
     cfg_file_path = model_name + '.cfg'
     parser = DarkNetParser()
@@ -135,14 +135,15 @@ def build_engine(model_name, do_int8, dla_core, verbose=False):
                 raise RuntimeError('DLA core not supported by old API')
             builder.max_batch_size = MAX_BATCH_SIZE
             builder.max_workspace_size = 1 << 30
-            builder.fp16_mode = True  # alternative: builder.platform_has_fast_fp16
+            builder.fp16_mode = do_fp16  # alternative: builder.platform_has_fast_fp16
             engine = builder.build_cuda_engine(network)
         else:  # new API: build_engine() with builder config
             builder.max_batch_size = MAX_BATCH_SIZE
             config = builder.create_builder_config()
             config.max_workspace_size = 1 << 30
             config.set_flag(trt.BuilderFlag.GPU_FALLBACK)
-#            config.set_flag(trt.BuilderFlag.FP16)
+            if do_fp16:
+                config.set_flag(trt.BuilderFlag.FP16)
             profile = builder.create_optimization_profile()
             profile.set_shape(
                 'input',                                # input tensor name
@@ -172,6 +173,9 @@ def main():
         '-c', '--category_num', type=int,
         help='number of object categories (obsolete)')
     parser.add_argument(
+        '-b', '--batch_size', type=int,
+        help='Max Batch Size')
+    parser.add_argument(
         '-m', '--model', type=str, required=True,
         help=('[yolov3-tiny|yolov3|yolov3-spp|yolov4-tiny|yolov4|'
               'yolov4-csp|yolov4x-mish]-[{dimension}], where '
@@ -181,12 +185,16 @@ def main():
         '--int8', action='store_true',
         help='build INT8 TensorRT engine')
     parser.add_argument(
+        '--fp16', action='store_true',
+        help='build FP16 TensorRT engine')
+    parser.add_argument(
         '--dla_core', type=int, default=-1,
         help='id of DLA core for inference (0 ~ N-1)')
     args = parser.parse_args()
+    MAX_BATCH_SIZE = args.batch_size
 
     engine = build_engine(
-        args.model, args.int8, args.dla_core, args.verbose)
+        args.model, args.int8, args.fp16, args.dla_core, args.verbose)
     if engine is None:
         raise SystemExit('ERROR: failed to build the TensorRT engine!')
 
