@@ -172,17 +172,25 @@ namespace nvinfer1
         int row = (idx % total_grids) / yolo_width;
         int col = (idx % total_grids) % yolo_width;
 
-        det->bbox[0] = (col + scale_sigmoidGPU(*(cur_input + 0 * total_grids), scale_x_y)) / yolo_width;    // [0, 1]
-        det->bbox[1] = (row + scale_sigmoidGPU(*(cur_input + 1 * total_grids), scale_x_y)) / yolo_height;   // [0, 1]
-        det->bbox[2] = __expf(*(cur_input + 2 * total_grids)) * *(anchors + 2 * anchor_idx + 0) / input_w;  // [0, 1]
-        det->bbox[3] = __expf(*(cur_input + 3 * total_grids)) * *(anchors + 2 * anchor_idx + 1) / input_h;  // [0, 1]
+        float x = *(cur_input + 0 * total_grids);
+        float y = *(cur_input + 1 * total_grids);
+        float w = *(cur_input + 2 * total_grids);
+        float h = *(cur_input + 3 * total_grids);
 
-        det->bbox[0] -= det->bbox[2] / 2;  // shift from center to top-left
-        det->bbox[1] -= det->bbox[3] / 2;
+        x = (col + scale_sigmoidGPU(x, scale_x_y)) / yolo_width * input_w;    // [0, 416]
+        y = (row + scale_sigmoidGPU(y, scale_x_y)) / yolo_height * input_h;   // [0, 416]
+        w = __expf(w) * *(anchors + 2 * anchor_idx + 0);  // [0, 416]
+        h = __expf(h) * *(anchors + 2 * anchor_idx + 1);  // [0, 416]
 
-        det->det_confidence = box_prob;
+        det->bbox[0] = y - h/2;
+        det->bbox[1] = x - w/2;
+        det->bbox[2] = y + h/2;
+        det->bbox[3] = x + w/2;
+
+        // det->det_confidence = box_prob;
+        // det->class_confidence = max_cls_prob;
+        det->det_confidence = box_prob * max_cls_prob;
         det->class_id = class_id;
-        det->class_confidence = max_cls_prob;
     }
 
     inline __device__ float scale(float x, float s)
@@ -237,9 +245,9 @@ namespace nvinfer1
         det->bbox[0] -= det->bbox[2] / 2;  // shift from center to top-left
         det->bbox[1] -= det->bbox[3] / 2;
 
-        det->det_confidence = box_prob;
+        det->det_confidence = box_prob * max_cls_prob;
         det->class_id = class_id;
-        det->class_confidence = max_cls_prob;
+        // det->class_confidence = max_cls_prob;
     }
 
     void YoloLayerPlugin::forwardGpu(const float* const* inputs, float* output, cudaStream_t stream, int batchSize)

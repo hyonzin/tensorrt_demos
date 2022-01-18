@@ -8,7 +8,7 @@
 #include "math_constants.h"
 #include "NvInfer.h"
 
-#define MAX_ANCHORS 6
+#define MAX_ANCHORS 9
 
 #if NV_TENSORRT_MAJOR >= 8
 #define NOEXCEPT noexcept
@@ -29,13 +29,13 @@
 
 namespace Yolo
 {
-    static constexpr float IGNORE_THRESH = 0.01f;
+    // static constexpr float IGNORE_THRESH = 0.01f;
 
     struct alignas(float) Detection {
         float bbox[4];  // x, y, w, h
         float det_confidence;
         float class_id;
-        float class_confidence;
+        // float class_confidence;
     };
 }
 
@@ -71,7 +71,7 @@ namespace nvinfer1
 
             const char* getPluginType() const NOEXCEPT override { return "YoloLayer_TRT"; }
 
-            const char* getPluginVersion() const NOEXCEPT override { return "1"; }
+            const char* getPluginVersion() const NOEXCEPT override { return "1-hjjung"; }
 
             void setPluginNamespace(const char* pluginNamespace) NOEXCEPT override { mPluginNamespace = pluginNamespace; }
 
