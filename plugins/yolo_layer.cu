@@ -166,8 +166,8 @@ namespace nvinfer1
         }
         float max_cls_prob = sigmoidGPU(max_cls_logit);
         float box_prob = sigmoidGPU(*(cur_input + 4 * total_grids));
-        //if (max_cls_prob < IGNORE_THRESH || box_prob < IGNORE_THRESH)
-        //    return;
+        if (max_cls_prob * box_prob < IGNORE_THRESH)
+           box_prob = 0;
 
         int row = (idx % total_grids) / yolo_width;
         int col = (idx % total_grids) % yolo_width;
@@ -177,15 +177,15 @@ namespace nvinfer1
         float w = *(cur_input + 2 * total_grids);
         float h = *(cur_input + 3 * total_grids);
 
-        x = (col + scale_sigmoidGPU(x, scale_x_y)) / yolo_width * input_w;    // [0, 416]
-        y = (row + scale_sigmoidGPU(y, scale_x_y)) / yolo_height * input_h;   // [0, 416]
-        w = __expf(w) * *(anchors + 2 * anchor_idx + 0);  // [0, 416]
-        h = __expf(h) * *(anchors + 2 * anchor_idx + 1);  // [0, 416]
+        x = (col + scale_sigmoidGPU(x, scale_x_y)) / yolo_width;    // [0, 1]
+        y = (row + scale_sigmoidGPU(y, scale_x_y)) / yolo_height;   // [0, 1]
+        w = __expf(w) * *(anchors + 2 * anchor_idx + 0) / input_w;  // [0, 1]
+        h = __expf(h) * *(anchors + 2 * anchor_idx + 1) / input_h;  // [0, 1]
 
-        det->bbox[0] = y - h/2;
-        det->bbox[1] = x - w/2;
-        det->bbox[2] = y + h/2;
-        det->bbox[3] = x + w/2;
+        det->bbox[0] = y - h / 2;
+        det->bbox[1] = x - w / 2;
+        det->bbox[2] = y + h / 2;
+        det->bbox[3] = x + w / 2;
 
         // det->det_confidence = box_prob;
         // det->class_confidence = max_cls_prob;
