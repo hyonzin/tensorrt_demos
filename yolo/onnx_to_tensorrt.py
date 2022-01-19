@@ -194,8 +194,8 @@ def main():
         args.model, args.int8, args.fp16, args.batch_size, args.dla_core, args.verbose)
     if engine is None:
         raise SystemExit('ERROR: failed to build the TensorRT engine!')
-
-    engine_path = '%s.trt' % args.model
+    
+    engine_path = f'{args.model}-maxbs{args.batch_size}-fp{16 if args.fp16 else 32}.trt'
     with open(engine_path, 'wb') as f:
         f.write(engine.serialize())
     print('Serialized the TensorRT engine to file: %s' % engine_path)
