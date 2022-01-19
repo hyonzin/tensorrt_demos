@@ -29,8 +29,7 @@
 
 namespace Yolo
 {
-    // static constexpr float IGNORE_THRESH = 0.1f;
-    static constexpr float IGNORE_THRESH = 0.2f;
+    static constexpr float IGNORE_THRESH = 0.001f;
 
     struct alignas(float) Detection {
         float bbox[4];  // x, y, w, h
