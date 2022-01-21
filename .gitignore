@@ -44,3 +44,5 @@ modnet/*.engine
 
 .ipynb_checkpoints/
 .DS_store/
+
+requirements_hjjung.txt

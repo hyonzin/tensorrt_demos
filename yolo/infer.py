@@ -20,16 +20,10 @@ except OSError as e:
 logger = trt.Logger()
 runtime = trt.Runtime(logger)
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-f', '--fp', type=int, required=True)
-parser.add_argument('-b', '--bs', type=int, required=True)
-args = parser.parse_args()
+batch_size = 1
+model_path = f'...'
 
-print(f'Batch size {args.bs}, FP{args.fp}')
-
-args_model = f'/home/hjjung/work/models/yolov4-modanet.darknet/yolov4-modanet-416-maxbs{args.bs}-fp{args.fp}'
-
-with open('%s.trt' % args_model, 'rb') as f:
+with open('%s.trt' % model_path, 'rb') as f:
     serialized_engine = f.read()
 engine = runtime.deserialize_cuda_engine(serialized_engine)
 context = engine.create_execution_context()
@@ -52,4 +46,4 @@ for iter in range(iters+1):
         time_sum += time.elapsed.total_seconds()
 time_avg = time_sum / (iters)
 print(f"avg: {time_avg} (sec)\n")
-print(f"FPS: {args.bs / time_avg}")
+print(f"FPS: {batch_size / time_avg}")

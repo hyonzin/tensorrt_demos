@@ -16,13 +16,13 @@ NVCCFLAGS= $(foreach compute, $(computes),-gencode arch=compute_$(compute),code=
 $(info NVCCFLAGS: $(NVCCFLAGS))
 
 # These are the directories where I installed TensorRT on my x86_64 PC.
-TENSORRT_INCS=-I"/home/hjjung/local/TensorRT/include"
-TENSORRT_LIBS=-L"/home/hjjung/local/TensorRT/lib"
-DST_LIB="/home/hjjung/local/lib/"
+TENSORRT_INCS=-I"$(HOME)/local/TensorRT/include"
+TENSORRT_LIBS=-L"$(HOME)/local/TensorRT/lib"
+DST_LIB="$(HOME)/local/lib/"
 
 # INCS and LIBS
-INCS=-I"/home/hjjung/local/cuda/include" $(TENSORRT_INCS) -I"/usr/local/include" -I"plugin"
-LIBS=-L"/home/hjjung/local/cuda/lib64" $(TENSORRT_LIBS) -L"/usr/local/lib" -Wl,--start-group -lnvinfer -lnvparsers -lnvinfer_plugin -lcudnn -lcublas -lnvToolsExt -lcudart -lrt -ldl -lpthread -Wl,--end-group
+INCS=-I"$(HOME)/local/cuda/include" $(TENSORRT_INCS) -I"/usr/local/include" -I"plugin"
+LIBS=-L"$(HOME)/local/cuda/lib64" $(TENSORRT_LIBS) -L"/usr/local/lib" -Wl,--start-group -lnvinfer -lnvparsers -lnvinfer_plugin -lcudnn -lcublas -lnvToolsExt -lcudart -lrt -ldl -lpthread -Wl,--end-group
 
 .PHONY: all clean
 

@@ -122,7 +122,6 @@ def allocate_buffers(engine):
     bindings = []
     stream = cuda.Stream()
     for binding in engine:
-#        size = trt.volume(engine.get_binding_shape(binding)) * engine.max_batch_size #hjjung: why *bs?
         size = trt.volume(engine.get_binding_shape(binding))
         dtype = trt.nptype(engine.get_binding_dtype(binding))
         # Allocate host and device buffers
