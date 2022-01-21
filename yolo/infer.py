@@ -45,5 +45,5 @@ for iter in range(iters+1):
     if iter > 0:
         time_sum += time.elapsed.total_seconds()
 time_avg = time_sum / (iters)
-print(f"avg: {time_avg} (sec)\n")
+print(f"avg: {time_avg} (sec/batch)\n")
 print(f"FPS: {batch_size / time_avg}")
