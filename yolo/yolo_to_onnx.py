@@ -555,7 +555,7 @@ class GraphBuilderONNX(object):
         if verbose:
             print(helper.printable_graph(self.graph_def))
         model_def = helper.make_model(self.graph_def,
-                                      producer_name='NVIDIA TensorRT sample')
+                                      producer_name='IntelliSys')
         return model_def
 
     def _make_onnx_node(self, layer_name, layer_dict):
