@@ -18,11 +18,12 @@ $(info NVCCFLAGS: $(NVCCFLAGS))
 # These are the directories where I installed TensorRT on my x86_64 PC.
 TENSORRT_INCS=-I"$(HOME)/local/TensorRT/include"
 TENSORRT_LIBS=-L"$(HOME)/local/TensorRT/lib"
-DST_LIB="$(HOME)/local/lib/"
+DST_LIB="/usr/local/nvidia/lib/"
 
 # INCS and LIBS
-INCS=-I"$(HOME)/local/cuda/include" $(TENSORRT_INCS) -I"/usr/local/include" -I"plugin"
-LIBS=-L"$(HOME)/local/cuda/lib64" $(TENSORRT_LIBS) -L"/usr/local/lib" -Wl,--start-group -lnvinfer -lnvparsers -lnvinfer_plugin -lcudnn -lcublas -lnvToolsExt -lcudart -lrt -ldl -lpthread -Wl,--end-group
+INCS=-I"/usr/local/cuda/include" $(TENSORRT_INCS) -I"/usr/local/include" -I"plugin"
+LIBS=-L"/usr/local/cuda/lib64" $(TENSORRT_LIBS) -L"/usr/local/lib" -Wl,--start-group -lnvinfer -lnvparsers -lnvinfer_plugin -lcudnn -lcublas -lnvToolsExt -lcudart -lrt -ldl -lpthread -Wl,--end-group
+
 
 .PHONY: all clean
 
