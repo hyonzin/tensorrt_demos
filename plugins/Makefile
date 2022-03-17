@@ -18,7 +18,7 @@ $(info NVCCFLAGS: $(NVCCFLAGS))
 # These are the directories where I installed TensorRT on my x86_64 PC.
 TENSORRT_INCS=-I"$(HOME)/local/TensorRT/include"
 TENSORRT_LIBS=-L"$(HOME)/local/TensorRT/lib"
-DST_LIB="/usr/local/nvidia/lib/"
+DST_LIB="/usr/local/nvidia/lib"
 
 # INCS and LIBS
 INCS=-I"/usr/local/cuda/include" $(TENSORRT_INCS) -I"/usr/local/include" -I"plugin"
@@ -33,8 +33,10 @@ clean:
 	rm -f *.so *.o
 
 libyolo_layer.so: yolo_layer.o
+	mkdir -p $(DST_LIB)
 	$(CC) -shared -o $@ $< $(LIBS)
-	cp $@ $(DST_LIB)
+	cp $@ $(DST_LIB)/
+	rm -f *.so *.o
 
 yolo_layer.o: yolo_layer.cu yolo_layer.h
-	$(NVCC) -ccbin $(CC) $(INCS) $(NVCCFLAGS) -Xcompiler -fPIC -c -o $@ $<
+	$(NVCC) -ccbin $(CC) $(INCS) $(NVCCFLAGS) -Xcompiler -fPIC -w -c -o $@ $<
